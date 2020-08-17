@@ -44,6 +44,19 @@ public class ProductApiV1Controller {
 
 	private final Logger logger = Logger.getLogger(ProductApiV1Controller.class.getName());
 
+	/**
+	 * This entry-point returns list of Products and permits to paginate. Results can be filtered by groupId, subGroupId.
+	 * 
+	 * @param from
+	 * @param size
+	 * @param sort
+	 * @param order
+	 * @param keywords
+	 * @param groupId
+	 * @param subGroupId
+	 * @param includes
+	 * @return
+	 */
 	@GetMapping("/")
     public ResponseEntity<String> getProducts(
     		@RequestParam(required = false, defaultValue = "0") int from,
@@ -91,6 +104,12 @@ public class ProductApiV1Controller {
 		}
     }
 
+	/**
+	 * Entry point to retrieve a Product
+	 * 
+	 * @param id
+	 * @return
+	 */
 	@GetMapping(value = "/{id}")
 	public ResponseEntity<String> getProduct(@PathVariable int id) {
 		try {
@@ -110,6 +129,12 @@ public class ProductApiV1Controller {
 		return buildResponseEntity(HttpStatus.BAD_REQUEST.getReasonPhrase(), HttpStatus.BAD_REQUEST);
 	}
 
+	/**
+	 * Entry point to add Product
+	 * 
+	 * @param payload
+	 * @return
+	 */
     @PostMapping(value = "/")
     public ResponseEntity<String> addProduct(@RequestBody(required = true) String payload) {
 		try {
@@ -131,6 +156,13 @@ public class ProductApiV1Controller {
 		return buildResponseEntity(HttpStatus.BAD_REQUEST.getReasonPhrase(), HttpStatus.BAD_REQUEST);
     }
 
+    /**
+     * Entry point to update an existing Product
+     * 
+     * @param id
+     * @param payload
+     * @return
+     */
 	@PutMapping(value = "/{id}")
     public ResponseEntity<String> updateProduct(@PathVariable int id, @RequestBody(required = true) String payload) {
 		try {
@@ -152,6 +184,12 @@ public class ProductApiV1Controller {
 		return buildResponseEntity(HttpStatus.BAD_REQUEST.getReasonPhrase(), HttpStatus.BAD_REQUEST);
     }
 
+	/**
+	 * Entry point in order to delete a product
+	 * 
+	 * @param id
+	 * @return
+	 */
 	@DeleteMapping(value = "/{id}")
     public ResponseEntity<String> deleteProduct(@PathVariable int id) {
 		try {

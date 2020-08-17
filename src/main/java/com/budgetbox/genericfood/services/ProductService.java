@@ -36,6 +36,12 @@ public class ProductService {
 	
 	private final Logger logger = Logger.getLogger(ProductService.class.getName());
 
+	/**
+	 * This method returns the Page of matched Products and permits to paginate.
+	 * 
+	 * @param query
+	 * @return
+	 */
 	public Page<Product> searchProducts(ProductSearchQuery query) {
 		try {
 			CriteriaBuilder builder = entityManager.getCriteriaBuilder();
@@ -84,6 +90,12 @@ public class ProductService {
 	    return entityManager.createQuery(countCriteria).getSingleResult();
 	}
 
+	/**
+	 * Returns a product by id, else null.
+	 * 
+	 * @param id
+	 * @return
+	 */
 	public Product get(int id) {
 		try {
 			return productRepository.getById(id);
@@ -93,6 +105,12 @@ public class ProductService {
 		return null;
 	}
 
+	/**
+	 * Return the saved product with it's id if new. Returns null if failed.
+	 * 
+	 * @param product
+	 * @return
+	 */
 	public Product save(Product product) {
 		try {
 			return productRepository.save(product);
@@ -102,6 +120,12 @@ public class ProductService {
 		return null;
 	}
 
+	/**
+	 * Return true if the Product identified by id is deleted.
+	 * 
+	 * @param id
+	 * @return
+	 */
 	public boolean delete(int id) {
 		try {
 			productRepository.deleteById(id);

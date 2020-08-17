@@ -32,12 +32,6 @@ public class Product implements Serializable {
 	@Column(name = "subgroup_id")
 	private int subGroupId;
 
-	
-//FIXME	
-//    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "biblioEntry")
-//    @JsonManagedReference
-//	private Set<BiblioVariant> variants = Set.of();
-	
 	public String getName() {
 		return name;
 	}
@@ -80,7 +74,7 @@ public class Product implements Serializable {
 
 	@Override
 	public String toString() {
-		return "Product [id=" + id + ", name=" + name + ", scientificName=" + scientificName + ", groupId="
-				+ groupId + ", subGroupId=" + subGroupId + "]";
+		return "Product [id=" + id + ", name=" + name + ", scientificName=" + scientificName + ", groupId=" + groupId
+				+ ", subGroupId=" + subGroupId + "]";
 	}
 }

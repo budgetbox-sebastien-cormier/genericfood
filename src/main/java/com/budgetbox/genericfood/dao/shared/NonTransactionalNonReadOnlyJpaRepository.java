@@ -76,13 +76,11 @@ public interface NonTransactionalNonReadOnlyJpaRepository<T, ID extends Serializ
 	@Transactional
 	void deleteAll();	
 
-	@Transactional
 	public default T getById(ID id) {
 		return findById(id).orElse(null);
 	}
 
 	@Override
-	@Transactional
 	public default T getOne(ID id) {
 		return findById(id).orElse(null);
 	}

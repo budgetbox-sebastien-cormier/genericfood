@@ -19,6 +19,12 @@ public class ProductGroupService {
 
 	private final Logger logger = Logger.getLogger(ProductGroupService.class.getName());
 
+	/**
+	 * Returns the list of matched ProductGroup by ids
+	 * 
+	 * @param ids
+	 * @return
+	 */
 	public List<ProductGroup> getByIds(Collection<Integer> ids) {
 		try {
 			return productGroupRepository.findAllById(ids);
