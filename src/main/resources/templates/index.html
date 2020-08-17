@@ -1,0 +1,35 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+<title>Budgetbox</title>
+</head>
+<body>
+	<h1>List of products:</h1>
+	<table>
+		<thead>
+			<tr>
+				<th>NAme</th>
+				<th>Scientific Name</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr th:if="${products.content.empty}">
+				<td colspan="2">No Books Available</td>
+			</tr>
+			<tr th:each="product : ${products.content}">
+				<td><a th:href="@{/product(id=${product.id})}"
+					th:text=${product.name}
+					</a></td>
+				<td><span th:text="${product.scientificName}"></span></td>
+			</tr>
+		</tbody>
+	</table>
+	<div th:if="${products.totalPages > 0}" class="pagination"
+		th:each="pageNumber : ${pageNumbers}">
+		<a th:href="@{/(size=${products.size}, page=${pageNumber})}"
+			th:text=${pageNumber}
+			th:class="${pageNumber==products.number + 1} ? active"></a>
+	</div>
+</body>
+</html>

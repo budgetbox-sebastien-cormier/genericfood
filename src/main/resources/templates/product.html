@@ -1,0 +1,16 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+<title>Budgetbox</title>
+</head>
+<body>
+	<h1>Details of the product: <span th:text="${product.id}"></span></h1>
+	<div>Name: <span th:text="${product.name}"></span></div>
+	<div>Scientific Name: <span th:text="${product.scientificName}"></span></div>
+
+	<div>Group: <span th:text="${group.name}"></span></div>
+	<div>Sub Group: <span th:text="${subgroup.name}"></span></div>
+
+</body>
+</html>

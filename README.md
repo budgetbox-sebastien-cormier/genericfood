@@ -59,7 +59,15 @@ mysql -h your_server -u root -p < mysql/budgetbox-structure-and-data.sql
 java -jar target/generic-food-0.0.1-SNAPSHOT.jar
 ```
 
+### Query sample
 
+```sh
+GET http://localhost:8080/products/v1.0/?keywords=onion&includes=groups,subgroups
+```
+
+```sh
+GET http://localhost:8080/products/v1.0/929
+```
 
 Add interface
 

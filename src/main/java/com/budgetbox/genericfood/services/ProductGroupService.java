@@ -34,6 +34,15 @@ public class ProductGroupService {
 		return List.of();
 	}
 
+	public ProductGroup getById(int id) {
+		try {
+			return productGroupRepository.getById(id);
+		} catch (Exception e) {
+			logger.severe(ExceptionUtils.getStackTrace(e));
+		}
+		return null;
+	}
+
 	public ProductGroup getByName(String name) {
 		try {
 			return productGroupRepository.getByName(name);
