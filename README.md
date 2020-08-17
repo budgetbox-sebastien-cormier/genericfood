@@ -1,4 +1,4 @@
-# budgetbox
+# Budgetbox
 
 Requirements:
 
@@ -15,7 +15,7 @@ cd budgetbox
 ```
 
 
-### Configure your MySQL
+### Configure for your running MySQL server
 
 by editing the following file (Spring application.properties)
 
@@ -35,21 +35,29 @@ mysql.password = your_password or null
 mvn clean package
 ```
 
-### This Spring boot Application can be run with the following command.
+
+### Load data into your MySQL (option 1 with MySQL Workbench)
+
+Using MySQL Workbench:
+  - Connect to your server
+  - Open menu 'Server' / 'Data import'
+  - Select the file in the subdirectory 'mysql' named 'budgetbox-structure-and-data.sql'
+  - Import structure and data
+
+
+### Load data into your MySQL (option 2 in command line)
+
+```sh
+mysql -h your_server -u root -p < mysql/budgetbox-structure-and-data.sql
+```
+
+
+
+### Start the Spring boot Application by running with the following command.
 
 ```sh
 java -jar target/generic-food-0.0.1-SNAPSHOT.jar
 ```
-
-
-### Load data into DB
-
-As a multipart POST call, with an attached file named 'inputFile' 
-
-```sh
-POST http://localhost:8080/products/v1.0/init
-```
-
 
 
 
