@@ -1,4 +1,4 @@
-package com.budgetbox.genericfood;
+package com.budgetbox.genericfood.config;
 
 import java.util.logging.Logger;
 
@@ -18,8 +18,6 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-
-import com.budgetbox.genericfood.dao.TomcatJdbcDataSourceBuilder;
 
 @Configuration
 @EnableTransactionManagement

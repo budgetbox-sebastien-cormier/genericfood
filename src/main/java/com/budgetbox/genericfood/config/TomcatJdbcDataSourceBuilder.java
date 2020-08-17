@@ -1,4 +1,4 @@
-package com.budgetbox.genericfood.dao;
+package com.budgetbox.genericfood.config;
 
 import org.apache.tomcat.jdbc.pool.DataSource;
 
@@ -16,8 +16,8 @@ public class TomcatJdbcDataSourceBuilder {
 
 	    dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
 	    dataSource.setUrl("jdbc:mysql://0.0.0.0/products?zeroDateTimeBehavior=convertToNull&autoReconnect=true&characterEncoding=UTF-8&useSSL=false"); 
-	    dataSource.setUsername("budgetbox");
-	    dataSource.setPassword("challenge");
+	    dataSource.setUsername("write");
+	    dataSource.setPassword("*****");
 
 	    // Set Tomcat JDBC parameters
 	    // https://tomcat.apache.org/tomcat-9.0-doc/jdbc-pool.html

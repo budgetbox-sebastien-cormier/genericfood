@@ -1,7 +1,9 @@
-package com.budgetbox.genericfood.dao;
+package com.budgetbox.genericfood.dao.shared;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+
+import com.budgetbox.genericfood.exceptions.IllegalPageRequestException;
 
 public abstract class PageRequestBuilder {
 

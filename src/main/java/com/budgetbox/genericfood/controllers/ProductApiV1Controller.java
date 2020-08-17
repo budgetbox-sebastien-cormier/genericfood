@@ -1,4 +1,4 @@
-package com.budgetbox.genericfood.controlers;
+package com.budgetbox.genericfood.controllers;
 
 import java.util.HashMap;
 import java.util.Map;

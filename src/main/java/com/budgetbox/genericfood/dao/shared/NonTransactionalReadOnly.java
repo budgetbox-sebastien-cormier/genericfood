@@ -1,4 +1,4 @@
-package com.budgetbox.genericfood.dao;
+package com.budgetbox.genericfood.dao.shared;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

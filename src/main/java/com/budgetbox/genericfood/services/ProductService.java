@@ -22,7 +22,7 @@ import org.springframework.stereotype.Service;
 
 import com.budgetbox.genericfood.dao.Product;
 import com.budgetbox.genericfood.dao.ProductRepository;
-import com.budgetbox.genericfood.dao.PageRequestBuilder;
+import com.budgetbox.genericfood.dao.shared.PageRequestBuilder;
 import com.budgetbox.genericfood.shared.ProductSearchQuery;
 
 @Service
@@ -31,7 +31,7 @@ public class ProductService {
 	@Autowired
 	ProductRepository productRepository;
 
-	@PersistenceContext(unitName = "productEntityManager")
+	@PersistenceContext(unitName = "productEntityManagerFactory")
     private EntityManager entityManager;
 	
 	private final Logger logger = Logger.getLogger(ProductService.class.getName());

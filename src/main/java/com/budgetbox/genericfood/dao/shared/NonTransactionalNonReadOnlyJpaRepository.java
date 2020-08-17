@@ -1,4 +1,4 @@
-package com.budgetbox.genericfood.dao;
+package com.budgetbox.genericfood.dao.shared;
 
 import java.io.Serializable;
 import java.util.List;

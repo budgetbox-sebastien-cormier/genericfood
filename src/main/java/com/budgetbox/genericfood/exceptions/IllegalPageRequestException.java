@@ -1,4 +1,4 @@
-package com.budgetbox.genericfood.dao;
+package com.budgetbox.genericfood.exceptions;
 
 public class IllegalPageRequestException extends Exception {
 
