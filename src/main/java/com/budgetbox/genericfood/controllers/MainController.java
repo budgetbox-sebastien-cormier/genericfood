@@ -17,6 +17,12 @@ import com.budgetbox.genericfood.services.ProductGroupService;
 import com.budgetbox.genericfood.services.ProductService;
 import com.budgetbox.genericfood.shared.ProductSearchQuery;
 
+/**
+ * This is only a test for Thymeleaf
+ * 
+ * @author xfacq
+ *
+ */
 @Controller
 public class MainController {
 
@@ -54,7 +60,7 @@ public class MainController {
     }
 
 	@GetMapping("/product")
-    public String homepage(Model model, @RequestParam("id") int productId) {
+    public String product(Model model, @RequestParam("id") int productId) {
 		Product product = productService.get(productId);
 	    model.addAttribute("product", product);
         model.addAttribute("group", productGroupService.getById(product.getGroupId()));

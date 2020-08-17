@@ -1,4 +1,4 @@
-package com.budgetbox.genericfood.config;
+package com.budgetbox.genericfood.dao.config;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.jdbc.pool.DataSource;

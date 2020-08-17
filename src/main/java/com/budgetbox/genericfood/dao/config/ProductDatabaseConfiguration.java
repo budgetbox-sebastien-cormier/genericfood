@@ -1,4 +1,4 @@
-package com.budgetbox.genericfood.config;
+package com.budgetbox.genericfood.dao.config;
 
 import java.util.logging.Logger;
 
