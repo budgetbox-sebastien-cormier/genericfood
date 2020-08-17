@@ -7,6 +7,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan.Filter;
 import org.springframework.context.annotation.Configuration;
@@ -32,12 +33,24 @@ public class ProductDatabaseConfiguration {
 
 	private static final Logger logger = Logger.getLogger(ProductDatabaseConfiguration.class.getName());
 
+	@Value("${mysql.host}")
+	private String mySQL_host;
+
+	@Value("${mysql.port}")
+	private String mySQL_port;
+
+	@Value("${mysql.user}")
+	private String mySQL_user;
+
+	@Value("${mysql.password}")
+	private String mySQL_password;
+
 	// -- DataSource methods ---------------------------------------------------------------
 
 	@Bean(name = "productDataSource")
 	protected DataSource dataSource() {
 		try {
-			return TomcatJdbcDataSourceBuilder.build();
+			return TomcatJdbcDataSourceBuilder.build(mySQL_host, mySQL_port, mySQL_user, mySQL_password);
 		} catch (Exception e) {
 			logger.severe(ExceptionUtils.getStackTrace(e));
 		}
