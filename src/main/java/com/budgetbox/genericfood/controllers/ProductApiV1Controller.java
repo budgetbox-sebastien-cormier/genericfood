@@ -1,5 +1,6 @@
 package com.budgetbox.genericfood.controllers;
 
+import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -21,14 +22,18 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.budgetbox.genericfood.dao.Product;
+import com.budgetbox.genericfood.dao.ProductGroup;
 import com.budgetbox.genericfood.services.ProductGroupService;
 import com.budgetbox.genericfood.services.ProductService;
 import com.budgetbox.genericfood.shared.ProductSearchQuery;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.opencsv.CSVReader;
 
 @RestController
 @RequestMapping("products/v1.0")
@@ -204,6 +209,57 @@ public class ProductApiV1Controller {
 			return buildResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
     }
+
+	@RequestMapping(value="/init", method = RequestMethod.POST, consumes = {"multipart/form-data"})
+	public ResponseEntity<String> initializeDatabase(@RequestParam(value = "inputFile", required = false) MultipartFile inputFile) {
+		try {
+			if(inputFile != null) {
+				String data = new String(inputFile.getBytes());
+
+				try (CSVReader csvReader = new CSVReader(new StringReader(data))) {
+					// read on time to skip headers
+					csvReader.readNext();
+
+				    String[] values = null;
+				    while ((values = csvReader.readNext()) != null) {
+						String sFoodName = values[0];
+						String sScientificName = values[1];
+						String sGroup = values[2];
+						String sSubGroup = values[3];
+
+						ProductGroup group = productGroupService.getByName(sGroup);
+						if(group == null) {
+							group = new ProductGroup();
+							group.setName(sGroup);
+							group = productGroupService.save(group);
+						}
+						ProductGroup subGroup = productGroupService.getByName(sSubGroup);
+						if(subGroup == null) {
+							subGroup = new ProductGroup();
+							subGroup.setName(sSubGroup);
+							subGroup = productGroupService.save(subGroup);
+						}
+
+						Product product = new Product();
+						product.setName(sFoodName);
+						product.setScientificName(sScientificName);
+						product.setGroupId(group.getId());
+						product.setSubGroupId(subGroup.getId());
+						
+						productService.save(product);
+				        
+				    }
+				}
+
+				return buildResponseEntity(HttpStatus.OK.getReasonPhrase(), HttpStatus.OK);
+			}
+		} catch (Exception e) {
+			logger.severe(ExceptionUtils.getStackTrace(e));
+			return buildResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
+		return buildResponseEntity(HttpStatus.BAD_REQUEST.getReasonPhrase(), HttpStatus.BAD_REQUEST);
+	}
 
 	@GetMapping("/ping")
 	public ResponseEntity<String> getPing() {

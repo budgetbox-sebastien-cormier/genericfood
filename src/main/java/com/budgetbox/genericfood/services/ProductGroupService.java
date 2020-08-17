@@ -33,4 +33,22 @@ public class ProductGroupService {
 		}
 		return List.of();
 	}
+
+	public ProductGroup getByName(String name) {
+		try {
+			return productGroupRepository.getByName(name);
+		} catch (Exception e) {
+			logger.severe(ExceptionUtils.getStackTrace(e));
+		}
+		return null;
+	}
+
+	public ProductGroup save(ProductGroup productGroup) {
+		try {
+			return productGroupRepository.save(productGroup);
+		} catch (Exception e) {
+			logger.severe(ExceptionUtils.getStackTrace(e));
+		}
+		return null;
+	}
 }
