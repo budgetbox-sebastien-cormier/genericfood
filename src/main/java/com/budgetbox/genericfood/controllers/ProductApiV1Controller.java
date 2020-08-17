@@ -2,7 +2,9 @@ package com.budgetbox.genericfood.controllers;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.budgetbox.genericfood.dao.Product;
+import com.budgetbox.genericfood.services.ProductGroupService;
 import com.budgetbox.genericfood.services.ProductService;
 import com.budgetbox.genericfood.shared.ProductSearchQuery;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,6 +36,9 @@ public class ProductApiV1Controller {
 
 	@Autowired
 	private ProductService productService;
+
+	@Autowired
+	private ProductGroupService productGroupService;
 
 	private final ObjectMapper mapper = new ObjectMapper();
 
@@ -46,7 +52,9 @@ public class ProductApiV1Controller {
 			@RequestParam(required = false, defaultValue = "ASC") String order,
 			@RequestParam(required = false, defaultValue = "") String keywords,
 			@RequestParam(required = false, defaultValue = "0") int groupId,
-			@RequestParam(required = false, defaultValue = "0") int subGroupId) {
+			@RequestParam(required = false, defaultValue = "0") int subGroupId,
+			@RequestParam(required = false, defaultValue = "") String includes
+			) {
 		try {
 			ProductSearchQuery query = new ProductSearchQuery();
 			query.setFrom(from);
@@ -57,11 +65,24 @@ public class ProductApiV1Controller {
 			query.setGroupId(groupId);
 			query.setSubGroupId(subGroupId);
 
-	        Page<Product> translationPage = productService.searchProducts(query);
+	        Page<Product> productsPage = productService.searchProducts(query);
 
 	        Map<String, Object> result = new HashMap<>();
-			result.put("total", translationPage.getTotalElements());
-			result.put("hits", translationPage.getContent());
+			result.put("total", productsPage.getTotalElements());
+			result.put("hits", productsPage.getContent());
+			
+			if(includes.contains("groups")) {
+				Set<Integer> groupIds = productsPage.getContent().parallelStream()
+						.map(p -> p.getGroupId())
+						.collect(Collectors.toSet());
+				result.put("groups", productGroupService.getByIds(groupIds));
+			}
+			if(includes.contains("subgroups")) {
+				Set<Integer> groupIds = productsPage.getContent().parallelStream()
+						.map(p -> p.getSubGroupId())
+						.collect(Collectors.toSet());
+				result.put("subgroups", productGroupService.getByIds(groupIds));
+			}
 
 			return buildResponseEntity(mapper.writeValueAsString(result), HttpStatus.OK);
 		} catch (Exception e) {

@@ -29,7 +29,7 @@ import com.budgetbox.genericfood.shared.ProductSearchQuery;
 public class ProductService {
 
 	@Autowired
-	ProductRepository productRepository;
+	private ProductRepository productRepository;
 
 	@PersistenceContext(unitName = "productEntityManagerFactory")
     private EntityManager entityManager;
