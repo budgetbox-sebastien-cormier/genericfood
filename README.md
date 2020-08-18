@@ -4,7 +4,7 @@ Requirements:
 
   - Java 8
   - Maven
-  - a running MySQL server
+  - a running MySQL server 8
 
 
 ### Clone the projet
@@ -15,7 +15,7 @@ cd budgetbox
 ```
 
 
-### Configure for your running MySQL server
+### Configure for your running MySQL server 8
 
 by editing the following file (Spring application.properties)
 
