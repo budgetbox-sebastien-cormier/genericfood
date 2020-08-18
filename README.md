@@ -69,7 +69,17 @@ GET http://localhost:8080/products/v1.0/?keywords=onion&includes=groups,subgroup
 GET http://localhost:8080/products/v1.0/929
 ```
 
-Add interface
 
+### Small frontend
+
+You can also navigate through products using the very small frontend developed with Thymeleaf.
+
+```sh
+http://localhost:8080/
+```
+
+```sh
+http://localhost:8080/product?id=1552
+```
 
 
