@@ -2,6 +2,7 @@ package com.budgetbox.genericfood.controllers;
 
 import java.io.StringReader;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -33,6 +34,7 @@ import com.budgetbox.genericfood.services.ProductGroupService;
 import com.budgetbox.genericfood.services.ProductService;
 import com.budgetbox.genericfood.shared.ProductSearchQuery;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Splitter;
 import com.opencsv.CSVReader;
 
 @RestController
@@ -75,37 +77,53 @@ public class ProductApiV1Controller {
 			) {
 		try {
 			ProductSearchQuery query = new ProductSearchQuery();
-			query.setFrom(from);
-			query.setSize(size);
-			query.setSort(sort);
-			query.setOrder(order);
-			query.setKeywords(keywords);
-			query.setGroupId(groupId);
-			query.setSubGroupId(subGroupId);
+
+			if(!query.setFrom(from)) {
+				return buildResponseEntity(HttpStatus.BAD_REQUEST, "The 'from' parameter is not valid");
+			}
+			if(!query.setSize(size)) {
+				return buildResponseEntity(HttpStatus.BAD_REQUEST, "The 'size' parameter is not valid");
+			}
+			if(!query.setSort(sort)) {
+				return buildResponseEntity(HttpStatus.BAD_REQUEST, "The 'sort' parameter is not valid");
+			}
+			if(!query.setOrder(order)) {
+				return buildResponseEntity(HttpStatus.BAD_REQUEST, "The 'order' parameter is not valid");
+			}
+			if(!query.setKeywords(keywords)) {
+				return buildResponseEntity(HttpStatus.BAD_REQUEST, "The 'keywords' parameter is not valid");
+			}
+			if(!query.setGroupId(groupId)) {
+				return buildResponseEntity(HttpStatus.BAD_REQUEST, "The 'groupId' parameter is not valid");
+			}
+			if(!query.setSubGroupId(subGroupId)) {
+				return buildResponseEntity(HttpStatus.BAD_REQUEST, "The 'subGroupId' parameter is not valid");
+			}
 
 	        Page<Product> productsPage = productService.searchProducts(query);
 
 	        Map<String, Object> result = new HashMap<>();
 			result.put("total", productsPage.getTotalElements());
 			result.put("hits", productsPage.getContent());
-			
-			if(includes.contains("groups")) {
+
+			List<String> inc = Splitter.on(',').omitEmptyStrings().trimResults().splitToList(StringUtils.trimToEmpty(includes));
+			if(inc.contains("groups")) {
 				Set<Integer> groupIds = productsPage.getContent().parallelStream()
 						.map(p -> p.getGroupId())
 						.collect(Collectors.toSet());
 				result.put("groups", productGroupService.getByIds(groupIds));
 			}
-			if(includes.contains("subgroups")) {
+			if(inc.contains("subgroups")) {
 				Set<Integer> groupIds = productsPage.getContent().parallelStream()
 						.map(p -> p.getSubGroupId())
 						.collect(Collectors.toSet());
 				result.put("subgroups", productGroupService.getByIds(groupIds));
 			}
 
-			return buildResponseEntity(mapper.writeValueAsString(result), HttpStatus.OK);
+			return buildJsonResponseEntity(HttpStatus.OK, mapper.writeValueAsString(result));
 		} catch (Exception e) {
 			logger.severe(ExceptionUtils.getStackTrace(e));
-			return buildResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), HttpStatus.INTERNAL_SERVER_ERROR);
+			return buildResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
     }
 
@@ -121,17 +139,17 @@ public class ProductApiV1Controller {
 			if(id > 0) {
 				Product product = productService.get(id);
 				if(product == null) {
-					return buildResponseEntity(HttpStatus.NOT_FOUND.getReasonPhrase(), HttpStatus.NOT_FOUND);
+					return buildResponseEntity(HttpStatus.NOT_FOUND);
 				}
 
-				return buildResponseEntity(mapper.writeValueAsString(product), HttpStatus.OK);
+				return buildJsonResponseEntity(HttpStatus.OK, mapper.writeValueAsString(product));
 			}
 		} catch (Exception e) {
 			logger.severe(ExceptionUtils.getStackTrace(e));
-			return buildResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), HttpStatus.INTERNAL_SERVER_ERROR);
+			return buildResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
-		return buildResponseEntity(HttpStatus.BAD_REQUEST.getReasonPhrase(), HttpStatus.BAD_REQUEST);
+		return buildResponseEntity(HttpStatus.BAD_REQUEST);
 	}
 
 	/**
@@ -146,19 +164,33 @@ public class ProductApiV1Controller {
 			if(StringUtils.isNotBlank(payload)) {
 				Product product = mapper.readValue(payload, Product.class);
 
+				if(product.getId() > 0 && productService.get(product.getId()) != null) {
+					return buildResponseEntity(HttpStatus.CONFLICT);
+				}
+
 				if(StringUtils.isBlank(product.getName()) || product.getGroupId() <= 0) {
-					return buildResponseEntity("'name' and 'groupId' should not be empty", HttpStatus.BAD_REQUEST);
+					return buildResponseEntity(HttpStatus.BAD_REQUEST, "'name' and 'groupId' should not be empty");
+				}
+
+				ProductGroup group = productGroupService.getById(product.getGroupId());
+				if(group == null) {
+					return buildResponseEntity(HttpStatus.BAD_REQUEST, "Unknown 'groupId'");
+				}
+
+				ProductGroup subGroup = productGroupService.getById(product.getSubGroupId());
+				if(subGroup == null) {
+					return buildResponseEntity(HttpStatus.BAD_REQUEST, "Unknown 'subGroupId'");
 				}
 
 				Product productNew = productService.save(product);
-				return buildResponseEntity(mapper.writeValueAsString(productNew), HttpStatus.CREATED);
+				return buildJsonResponseEntity(HttpStatus.CREATED, mapper.writeValueAsString(productNew));
 			}
 		} catch (Exception e) {
 			logger.severe(ExceptionUtils.getStackTrace(e));
-			return buildResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), HttpStatus.INTERNAL_SERVER_ERROR);
+			return buildResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
-		return buildResponseEntity(HttpStatus.BAD_REQUEST.getReasonPhrase(), HttpStatus.BAD_REQUEST);
+		return buildResponseEntity(HttpStatus.BAD_REQUEST);
     }
 
     /**
@@ -171,22 +203,25 @@ public class ProductApiV1Controller {
 	@PutMapping(value = "/{id}")
     public ResponseEntity<String> updateProduct(@PathVariable int id, @RequestBody(required = true) String payload) {
 		try {
-			if(StringUtils.isNotBlank(payload)) {
-				if(productService.get(id) == null) {
-					return buildResponseEntity(HttpStatus.NOT_FOUND.getReasonPhrase(), HttpStatus.NOT_FOUND);
+			if(id > 0 && StringUtils.isNotBlank(payload)) {
+				Product existingProduct = productService.get(id);
+				Product incomingProduct = mapper.readValue(payload, Product.class);
+
+				if(existingProduct == null) {
+					return buildResponseEntity(HttpStatus.NOT_FOUND);
+				} else if(incomingProduct.getId() != existingProduct.getId()) {
+					return buildResponseEntity(HttpStatus.CONFLICT);
 				}
 
-				Product product = mapper.readValue(payload, Product.class);
-				product.setId(id);
-				Product productNew = productService.save(product);
-				return buildResponseEntity(mapper.writeValueAsString(productNew), HttpStatus.OK);
+				Product productNew = productService.save(incomingProduct);
+				return buildJsonResponseEntity(HttpStatus.OK, mapper.writeValueAsString(productNew));
 			}
 		} catch (Exception e) {
 			logger.severe(ExceptionUtils.getStackTrace(e));
-			return buildResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), HttpStatus.INTERNAL_SERVER_ERROR);
+			return buildResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
-		return buildResponseEntity(HttpStatus.BAD_REQUEST.getReasonPhrase(), HttpStatus.BAD_REQUEST);
+		return buildResponseEntity(HttpStatus.BAD_REQUEST);
     }
 
 	/**
@@ -198,16 +233,20 @@ public class ProductApiV1Controller {
 	@DeleteMapping(value = "/{id}")
     public ResponseEntity<String> deleteProduct(@PathVariable int id) {
 		try {
-			if(productService.get(id) == null) {
-				return buildResponseEntity(HttpStatus.NOT_FOUND.getReasonPhrase(), HttpStatus.NOT_FOUND);
-			}
+			if(id > 0) {
+				if(productService.get(id) == null) {
+					return buildResponseEntity(HttpStatus.NOT_FOUND);
+				}
 
-			productService.delete(id);
-			return buildResponseEntity(HttpStatus.NO_CONTENT.getReasonPhrase(), HttpStatus.NO_CONTENT);
+				productService.delete(id);
+				return buildResponseEntity(HttpStatus.NO_CONTENT);
+			}
 		} catch (Exception e) {
 			logger.severe(ExceptionUtils.getStackTrace(e));
-			return buildResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), HttpStatus.INTERNAL_SERVER_ERROR);
+			return buildResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+
+		return buildResponseEntity(HttpStatus.BAD_REQUEST);
     }
 
 	@RequestMapping(value="/init", method = RequestMethod.POST, consumes = {"multipart/form-data"})
@@ -251,29 +290,45 @@ public class ProductApiV1Controller {
 				    }
 				}
 
-				return buildResponseEntity(HttpStatus.OK.getReasonPhrase(), HttpStatus.OK);
+				return buildResponseEntity(HttpStatus.OK);
 			}
 		} catch (Exception e) {
 			logger.severe(ExceptionUtils.getStackTrace(e));
-			return buildResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), HttpStatus.INTERNAL_SERVER_ERROR);
+			return buildResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
-		return buildResponseEntity(HttpStatus.BAD_REQUEST.getReasonPhrase(), HttpStatus.BAD_REQUEST);
+		return buildResponseEntity(HttpStatus.BAD_REQUEST);
 	}
 
 	@GetMapping("/ping")
 	public ResponseEntity<String> getPing() {
 		try {
-			return buildResponseEntity(HttpStatus.OK.getReasonPhrase(), HttpStatus.OK);
+			return buildResponseEntity(HttpStatus.OK);
 		} catch (Exception e) {
 			logger.severe(ExceptionUtils.getStackTrace(e));
-			return buildResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), HttpStatus.INTERNAL_SERVER_ERROR);
+			return buildResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
-	private ResponseEntity<String> buildResponseEntity(String content, HttpStatus status) {
+	// --------------------------------------------------------------------------------------------------
+
+	private static final String statusMessage = "{\"status\" : \"%1$s\", \"message\" : \"%2$s\"}";
+
+	private ResponseEntity<String> buildResponseEntity(HttpStatus status) {
+		return buildResponseEntity(String.format(statusMessage, status.value(), status.getReasonPhrase()), MediaType.APPLICATION_JSON, status);
+	}
+
+	private ResponseEntity<String> buildJsonResponseEntity(HttpStatus status, String json) {
+		return buildResponseEntity(json, MediaType.APPLICATION_JSON, status);
+	}
+
+	private ResponseEntity<String> buildResponseEntity(HttpStatus status, String statusContent) {
+		return buildResponseEntity(String.format(statusMessage, status.value(), statusContent), MediaType.APPLICATION_JSON, status);
+	}
+
+	private ResponseEntity<String> buildResponseEntity(String content, MediaType contentType, HttpStatus status) {
 		HttpHeaders headers = new HttpHeaders();
-	    headers.setContentType(MediaType.APPLICATION_JSON);
+	    headers.setContentType(contentType);
 		return new ResponseEntity<String>(content, headers, status);
 	}
 }
