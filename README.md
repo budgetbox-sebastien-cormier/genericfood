@@ -10,7 +10,7 @@ Requirements:
 ### Clone the projet
 
 ```sh
-git clone https://github.com/xavierfacq/budgetbox.git
+git clone https://github.com/budgetbox-sebastien-cormier/genericfood.git
 cd budgetbox
 ```
 
