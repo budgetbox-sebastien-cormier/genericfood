@@ -17,10 +17,11 @@ public class TomcatJdbcDataSourceBuilder {
 
 	    dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
 	    
-	    String url = new StringBuilder("jdbc:mysql://")
-	    		.append(host).append(':').append(port)
-	    		.append("/products?zeroDateTimeBehavior=convertToNull&autoReconnect=true&characterEncoding=UTF-8&useSSL=false")
-	    		.toString();
+	    String url = "jdbc:mysql://" +
+			host + ':' + port +
+			"/products?zeroDateTimeBehavior=convertToNull&autoReconnect=true&characterEncoding=UTF-8&useSSL=false" +
+			"&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
+		
 	    dataSource.setUrl(url); 
 	    dataSource.setUsername(StringUtils.trimToNull(user));
 	    dataSource.setPassword(StringUtils.trimToNull(password));
